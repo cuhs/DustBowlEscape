@@ -171,6 +171,7 @@ function HomeScreen({navigation}) {
     <View style={styles.container}>
 	  <ImageBackground source = {require('./assets/Images/dust-storm-vertical.png')} style = {styles.container}>
 	  	<FadeInText text={"Escape the Dust Bowl"} style={styles.title}/>
+		<FadeInText text = {"created by Alex Hu"} style={styles.instructions}/>
 		<GenButton text = "Play" whenPressed={() =>  navigation.navigate('Information1')} butStyleText={buttonStyles.startButtonText} butStyle={buttonStyles.startButton}/>
 		
 		<StatusBar style="auto" />
