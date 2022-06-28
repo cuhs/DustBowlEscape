@@ -1,0 +1,38 @@
+{
+  "files": {
+    "app.js": "/static/js/app.15267702.chunk.js",
+    "app.js.map": "/static/js/app.15267702.chunk.js.map",
+    "runtime~app.js": "/static/js/runtime~app.2e9f1821.js",
+    "runtime~app.js.map": "/static/js/runtime~app.2e9f1821.js.map",
+    "static/js/2.62c0988c.chunk.js": "/static/js/2.62c0988c.chunk.js",
+    "static/js/2.62c0988c.chunk.js.map": "/static/js/2.62c0988c.chunk.js.map",
+    "favicon-16.png": "/favicon-16.png",
+    "favicon-32.png": "/favicon-32.png",
+    "favicon.ico": "/favicon.ico",
+    "index.html": "/index.html",
+    "manifest.json": "/manifest.json",
+    "serve.json": "/serve.json",
+    "static/js/2.62c0988c.chunk.js.LICENSE.txt": "/static/js/2.62c0988c.chunk.js.LICENSE.txt",
+    "static/media/Route66map.png": "/static/media/Route66map.b089049d.png",
+    "static/media/arrive-in-CA.png": "/static/media/arrive-in-CA.22fe8165.png",
+    "static/media/cali-farmer.png": "/static/media/cali-farmer.1868bb15.png",
+    "static/media/can-of-beans.png": "/static/media/can-of-beans.05665900.png",
+    "static/media/car-trunk-less-food.jpg": "/static/media/car-trunk-less-food.b555da80.jpg",
+    "static/media/car-trunk.jpg": "/static/media/car-trunk.e5bb2a32.jpg",
+    "static/media/death-valley-background.png": "/static/media/death-valley-background.5e2a0120.png",
+    "static/media/dust-storm-vertical.png": "/static/media/dust-storm-vertical.b69b2c37.png",
+    "static/media/farm-pic.png": "/static/media/farm-pic.b63431da.png",
+    "static/media/gas-station-background.png": "/static/media/gas-station-background.07af69f7.png",
+    "static/media/jobs-background.png": "/static/media/jobs-background.06ca2c91.png",
+    "static/media/people-on-road.png": "/static/media/people-on-road.79ae2776.png",
+    "static/media/split-paths.png": "/static/media/split-paths.e9848d1b.png",
+    "static/media/straight-path-question-mark.jpg": "/static/media/straight-path-question-mark.a34dce9f.jpg",
+    "static/media/tent-beside-road.png": "/static/media/tent-beside-road.8503ea7b.png",
+    "static/media/tent-on-ground.png": "/static/media/tent-on-ground.fe5572dd.png"
+  },
+  "entrypoints": [
+    "static/js/runtime~app.2e9f1821.js",
+    "static/js/2.62c0988c.chunk.js",
+    "static/js/app.15267702.chunk.js"
+  ]
+}
