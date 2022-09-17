@@ -1,9 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import { Animated, ImageBackground, StyleSheet, Text, View, Button, Image, Pressable, Dimensions } from 'react-native';
+import { Animated, ImageBackground, StyleSheet, Text, View, Button, Image, Pressable, Dimensions, PanResponder } from 'react-native';
 import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator} from '@react-navigation/native-stack';
 import mapSrc from './assets/Images/Route66map.png'
+import personSrc from './assets/Images/farmer.png'
+import bgsounds from './assets/Sounds/bgmusic.mp3'
+
+
+
 //defined dimensions
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
@@ -97,6 +102,42 @@ const MultipleChoice = (props) => {
 	);
 }
 
+//animated drag and drop
+const DragAndDropDude = () => {
+	const pan = useRef(new Animated.ValueXY()).current;
+	const panResponder = useRef(
+		PanResponder.create({
+		  onMoveShouldSetPanResponder: () => true,
+		  onPanResponderGrant: () => {
+			pan.setOffset({
+			  x: pan.x._value,
+			  y: pan.y._value
+			});
+		  },
+		  onPanResponderMove: Animated.event(
+			[
+			  null,
+			  { dx: pan.x, dy: pan.y }
+			]
+		  ),
+		  onPanResponderRelease: () => {
+			pan.flattenOffset();
+		  }
+		})
+	  ).current;
+	  return (
+		  <Animated.View
+			style={{
+			  transform: [{ translateX: pan.x }, { translateY: pan.y }]
+			}}
+			{...panResponder.panHandlers}
+
+		  >
+			<Image source = {mapSrc} style = {styles.map}/>
+		  </Animated.View>
+	  );
+}
+
 const BackArrow = (props) => {
 	return(
 			<GenButton text = "Back" whenPressed={() => {props.event();}} butStyleText={buttonStyles.backButtonText} butStyle={buttonStyles.backButton}/>
@@ -167,13 +208,13 @@ const NextPage = (props) => {
 
 //home page
 function HomeScreen({navigation}) {
+	
    return(
     <View style={styles.container}>
 	  <ImageBackground source = {require('./assets/Images/dust-storm-vertical.png')} style = {styles.container}>
 	  	<FadeInText text={"Escape the Dust Bowl"} style={styles.title}/>
 		<FadeInText text = {"created by Alex Hu"} style={styles.instructions}/>
 		<GenButton text = "Play" whenPressed={() =>  navigation.navigate('Information1')} butStyleText={buttonStyles.startButtonText} butStyle={buttonStyles.startButton}/>
-		
 		<StatusBar style="auto" />
 	  </ImageBackground>
     </View>
@@ -891,7 +932,14 @@ const styles = StyleSheet.create({
   },
   map: {
 	width: (WINDOW_WIDTH*3)/4,
-  height: (WINDOW_HEIGHT*2)/3,
+    height: (WINDOW_HEIGHT*2)/3,
+	resizeMode: 'contain',
+  
+	//aspectRatio: 0.85,
+  },
+  dragPerson: {
+	width: (WINDOW_WIDTH*3)/4,
+    height: (WINDOW_HEIGHT*2)/3,
 	resizeMode: 'contain',
   
 	//aspectRatio: 0.85,
