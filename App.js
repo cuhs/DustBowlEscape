@@ -5,8 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator} from '@react-navigation/native-stack';
 import mapSrc from './assets/Images/Route66map.png'
 import personSrc from './assets/Images/farmer.png'
-import bgsounds from './assets/Sounds/bgmusic.mp3'
-
+import {Audio} from 'expo-av'
+import BgMusicSrc from './assets/Sounds/bgmusic.mp3'
 
 
 //defined dimensions
@@ -14,13 +14,25 @@ const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
 //generic button component
 const GenButton = (props) => {
-  const {title = props.text } = props;
-  return (
-    <Pressable style={props.butStyle} onPress = {props.whenPressed}>
-      <Text style={props.butStyleText}>{title}</Text>
-    </Pressable>
-  );
+	const [pressed, setPressed] = React.useState(false);
+	function Update() {
+		setPressed(true);
+	}
+	function releasePress(){
+		setPressed(false);
+		props.whenPressed();
+
+	}
+	//butStyle={[buttonStyles.multipleSelectButton, {borderColor: (!pressed)?'#fff':'#e6d62c', shadowColor: (!pressed)?'#656565':'#dbdb04'}]}
+  	const {title = props.text } = props;
+  	return (
+    	<Pressable style={(pressed && props.butStylePressed != undefined)?props.butStylePressed:props.butStyle} onPressIn = {() => {Update();}} onPressOut = {() => {releasePress();}}>
+      		<Text style={props.butStyleText}>{title}</Text>
+    	</Pressable>
+  	);
 }
+
+
 
 //text that fades in
 const FadeInText = (props) => {
@@ -65,7 +77,7 @@ const MultipleChoice = (props) => {
 	const [selected, setSelected] = React.useState(false);
 	return(
 		<View style={{flexDirection: 'column'}}>
-			<GenButton text = {props.text1} butStyle={buttonStyles.multipleSelectButton} butStyleText={buttonStyles.multipleSelectText}
+			<GenButton text = {props.text1} butStyle={buttonStyles.multipleSelectButton} butStyleText={buttonStyles.multipleSelectText} butStylePressed={buttonStyles.multipleChoiceButtonPressed}
 				whenPressed={()=> {
 					if(props.rightAns==1){
 						props.event();
@@ -73,7 +85,7 @@ const MultipleChoice = (props) => {
 						props.wrong();
 					}
 			}}/>
-			<GenButton text = {props.text2} butStyle={buttonStyles.multipleSelectButton} butStyleText={buttonStyles.multipleSelectText}
+			<GenButton text = {props.text2} butStyle={buttonStyles.multipleSelectButton} butStyleText={buttonStyles.multipleSelectText} butStylePressed={buttonStyles.multipleChoiceButtonPressed}
 				whenPressed={()=> {
 					if(props.rightAns==2){
 						props.event();
@@ -81,7 +93,7 @@ const MultipleChoice = (props) => {
 						props.wrong();
 					}
 			}}/>
-			<GenButton text = {props.text3} butStyle={buttonStyles.multipleSelectButton} butStyleText={buttonStyles.multipleSelectText}
+			<GenButton text = {props.text3} butStyle={buttonStyles.multipleSelectButton} butStyleText={buttonStyles.multipleSelectText} butStylePressed={buttonStyles.multipleChoiceButtonPressed}
 				whenPressed={()=> {
 					if(props.rightAns==3){
 						props.event();
@@ -89,7 +101,7 @@ const MultipleChoice = (props) => {
 						props.wrong();
 					}
 			}}/>
-			<GenButton text = {props.text4} butStyle={buttonStyles.multipleSelectButton} butStyleText={buttonStyles.multipleSelectText}
+			<GenButton text = {props.text4} butStyle={buttonStyles.multipleSelectButton} butStyleText={buttonStyles.multipleSelectText} butStylePressed={buttonStyles.multipleChoiceButtonPressed}
 				whenPressed={()=> {
 					if(props.rightAns==4){
 						props.event();
@@ -133,14 +145,14 @@ const DragAndDropDude = () => {
 			{...panResponder.panHandlers}
 
 		  >
-			<Image source = {mapSrc} style = {styles.map}/>
+			<Image source = {personSrc} style = {styles.dragPerson}/>
 		  </Animated.View>
 	  );
 }
 
 const BackArrow = (props) => {
 	return(
-			<GenButton text = "Back" whenPressed={() => {props.event();}} butStyleText={buttonStyles.backButtonText} butStyle={buttonStyles.backButton}/>
+			<GenButton text = "Back" whenPressed={() => {props.event();}} butStyleText={buttonStyles.backButtonText} butStyle={buttonStyles.backButton} butStylePressed={buttonStyles.backButtonPressed}/>
 	);
 }
 
@@ -150,7 +162,7 @@ const MultipleSelectOption = (props) => {
 		setPressed(!pressed);
 	}
 	return(
-		<GenButton text = {props.text} butStyle={[buttonStyles.multipleSelectButton, {borderColor: (!pressed)?'#fff':'#e6d62c', shadowColor: (!pressed)?'#656565':'#dbdb04'}]} butStyleText={buttonStyles.multipleSelectText}
+		<GenButton text = {props.text} butStyle={[buttonStyles.multipleSelectButton, {borderColor: (!pressed)?'#fff':'#e6d62c', shadowColor: (!pressed)?'#656565':'#dbdb04'}]} butStyleText={buttonStyles.multipleSelectText} butStylePressed={buttonStyles.multipleSelectButtonPressed}
 			whenPressed={()=> {props.event();Update();}}/>
 	);
 }
@@ -183,7 +195,7 @@ const MultipleSelect = (props) => {
 			<MultipleSelectOption text = {props.text3} event={UpdateThree}/>
 			<MultipleSelectOption text = {props.text4} event={UpdateFour}/>
 			<MultipleSelectOption text = {props.text5} event={UpdateFive}/>
-			<GenButton text = {"Submit"} butStyle={buttonStyles.submitButton} butStyleText={buttonStyles.multipleSelectText} 
+			<GenButton text = {"Submit"} butStyle={buttonStyles.submitButton} butStyleText={buttonStyles.multipleSelectText} butStylePressed={buttonStyles.submitButtonPressed}
 			whenPressed = {() => 
 			{if(oneState==props.conditional[0]&&twoState==props.conditional[1]&&threeState==props.conditional[2]&&fourState==props.conditional[3]&&fiveState==props.conditional[4])
 				props.correct();
@@ -197,7 +209,7 @@ const NextPage = (props) => {
 		<View style={styles.container}>
 			<ImageBackground source = {props.imgbg} style = {styles.container}>
 				<FadeInText style={props.textStyle} text={props.text}/>
-				<GenButton text = "Next" whenPressed={() => {props.event();}} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton}/>
+				<GenButton text = "Next" whenPressed={() => {props.event();}} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton} butStylePressed = {buttonStyles.nextButtonPressed}/>
 				<BackArrow event={props.back}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
@@ -208,13 +220,44 @@ const NextPage = (props) => {
 
 //home page
 function HomeScreen({navigation}) {
-	
+	const [sound, setSound] = React.useState();
+	async function playSound() {
+	  console.log('Loading Sound');
+	  const { sound } = await Audio.Sound.createAsync( require('./assets/Sounds/bgmusic.mp3')
+	  );
+	  setSound(sound);
+  
+	  console.log('Playing Sound');
+	  await sound.playAsync();
+	}
+  
+	React.useEffect(() => {
+	  return sound
+		? () => {
+			console.log('Unloading Sound');
+			sound.unloadAsync();
+		  }
+		: undefined;
+	}, [sound]);
+	// React.useEffect(() => {
+	// 	playSound();
+	// 	return sound
+	// 	  ? () => {
+	// 		  console.log('Unloading Sound');
+	// 		  sound.unloadAsync();
+	// 		}
+	// 	  : undefined;
+	//   }, []);
+	const PressedAction = () => {
+		playSound();
+		navigation.navigate('Information1');
+	}
    return(
     <View style={styles.container}>
 	  <ImageBackground source = {require('./assets/Images/dust-storm-vertical.png')} style = {styles.container}>
-	  	<FadeInText text={"Escape the Dust Bowl"} style={styles.title}/>
+		<FadeInText text={"Escape the Dust Bowl"} style={styles.title}/>
 		<FadeInText text = {"created by Alex Hu"} style={styles.instructions}/>
-		<GenButton text = "Play" whenPressed={() =>  navigation.navigate('Information1')} butStyleText={buttonStyles.startButtonText} butStyle={buttonStyles.startButton}/>
+		<GenButton text = "Play" whenPressed={PressedAction} butStyleText={buttonStyles.startButtonText} butStyle={buttonStyles.startButton} butStylePressed={buttonStyles.startButtonPressed}/>
 		<StatusBar style="auto" />
 	  </ImageBackground>
     </View>
@@ -224,12 +267,13 @@ function HomeScreen({navigation}) {
 //Gamve Over Screen
 function GameOverScreen({route, navigation}) {
 	const message = route.params.message;
+	const backRoute = route.params.backRoute
 	  return(
     <View style={styles.container}>
 	  <ImageBackground source = {require('./assets/Images/dust-storm-vertical.png')} style = {styles.container}>
 	  	<FadeInText text={"Game Over"} style={styles.title}/>
 		<FadeInText text={message} style={styles.instructions}/>
-		<GenButton text = "Go Back" whenPressed={() =>  navigation.goBack()} butStyleText={buttonStyles.startButtonText} butStyle={buttonStyles.startButton}/>
+		<GenButton text = "Go Back" whenPressed={() =>  navigation.navigate(backRoute)} butStyleText={buttonStyles.startButtonText} butStyle={buttonStyles.startButton} butStylePressed={buttonStyles.startButtonPressed}/>
 		
 		<StatusBar style="auto" />
 	  </ImageBackground>
@@ -242,12 +286,12 @@ function Information1({navigation}) {
 		navigation.navigate('Information2');
 	}
 	return(
-			<NextPage text="In the 1920s to 1930s, low crop prices and high machinery costs led to overproduction of crops. Farmers used dry farming techniques that worsened the quality of soil." event={GoNext} imgbg={require('./assets/Images/dust-storm-vertical.png')} textStyle={styles.instructions} back={() => {navigation.goBack()}}/>
+			<NextPage text="In the 1920s to 1930s, low crop prices and high machinery costs led to overproduction of crops. Farmers used dry farming techniques that worsened the quality of soil." event={GoNext} imgbg={require('./assets/Images/dust-storm-vertical.png')} textStyle={styles.instructions} back={() => {navigation.navigate('HomeScreen')}}/>
 	);
 }
 function Information2({navigation}){
 	return (
-		<NextPage text = "As a result of dry farming and major droughts in the area, huge dust storms arose in the midwest, beginning the Dust Bowl. At the same time, several factors including a market crash led to the Great Depression." event={() => {navigation.navigate('Instructions');}} imgbg={require('./assets/Images/dust-storm-vertical.png')} textStyle={styles.instructions} back={() => {navigation.goBack()}}/>
+		<NextPage text = "As a result of dry farming and major droughts in the area, huge dust storms arose in the midwest, beginning the Dust Bowl. At the same time, several factors including a market crash led to the Great Depression." event={() => {navigation.navigate('Instructions');}} imgbg={require('./assets/Images/dust-storm-vertical.png')} textStyle={styles.instructions} back={() => {navigation.navigate('Information1')}}/>
 	);
 }
 
@@ -265,7 +309,7 @@ function Instructions({navigation}) {
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>*/
-		<NextPage text = "You are an Oklahoma farmer that is suffering from the Dust Bowl and the Great Depression. You decide whether to leave and try to get to better conditions. " event={() => navigation.navigate('LeavePath')} imgbg={require('./assets/Images/dust-storm-vertical.png')} textStyle={styles.instructions} back={() => navigation.goBack()}/>
+		<NextPage text = "You are an Oklahoma farmer that is suffering from the Dust Bowl and the Great Depression. You decide whether to leave and try to get to better conditions. " event={() => navigation.navigate('LeavePath')} imgbg={require('./assets/Images/dust-storm-vertical.png')} textStyle={styles.instructions} back={() => navigation.navigate('Information2')}/>
 	);
 }
 //initial leave path screen
@@ -274,7 +318,7 @@ function LeavePath({navigation}){
 		navigation.navigate('CorrectBelongings');
 	}
 	const IncorrectAction = () => {
-		navigation.navigate('GameOverScreen', {message: 'You should bring everything you can.'});
+		navigation.navigate('GameOverScreen', {message: 'You should bring everything you can.', backRoute: 'LeavePath'});
 	}
 	return (
 		<View style={styles.container}>
@@ -282,7 +326,7 @@ function LeavePath({navigation}){
 				<FadeInText style={styles.instructionsWithBg} text={"You must decide what to bring with you. Select all items you want to bring."}/>
 				<MultipleSelect text1={"Money"} text2={"Wheat"} text3={"Water"} text4={"Corn"} text5={"Tent"} conditional={[true,true,true,true,true]} correct={(CorrectAction)} incorrect={(IncorrectAction)} />
 				<StatusBar style="auto" />
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('Instructions')}/>
 			</ImageBackground>
 		</View>
 	);
@@ -290,7 +334,7 @@ function LeavePath({navigation}){
 
 function CorrectBelongings({navigation}){
 	return(
-		<NextPage text="You decide to bring everything you can." event={() => {navigation.navigate('ChooseSellFarm');}} back={() => {navigation.goBack()}} textStyle={styles.instructionsWithBg} imgbg={require('./assets/Images/car-trunk.jpg')}/>
+		<NextPage text="You decide to bring everything you can." event={() => {navigation.navigate('ChooseSellFarm');}} back={() => {navigation.navigate('LeavePath')}} textStyle={styles.instructionsWithBg} imgbg={require('./assets/Images/car-trunk.jpg')}/>
 	);
 }
 
@@ -300,10 +344,10 @@ function ChooseSellFarm({navigation}){
 			<ImageBackground source = {require('./assets/Images/farm-pic.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"Should you sell your farm for the little money you can get to bring with you?"}/>
 				<View style={{flexDirection: 'row'}} >
-					<GenButton text = "No" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'You will need all the money you can get in your journey, even if you do not have much.'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton}/>
-					<GenButton text = "Yes" whenPressed={() => navigation.navigate('SellFarm')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton}/>
+					<GenButton text = "No" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'You will need all the money you can get in your journey, even if you do not have much.', backRoute: 'ChooseSellFarm'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton} butStylePressed={buttonStyles.leftButtonPressed}/>
+					<GenButton text = "Yes" whenPressed={() => navigation.navigate('SellFarm')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton} butStylePressed={buttonStyles.rightButtonPressed}/>
 				</View>
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('CorrectBelongings')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -312,13 +356,13 @@ function ChooseSellFarm({navigation}){
 
 function SellFarm({navigation}){
 	return(
-		<NextPage text="You decide to sell the farm. You will need all the money you can get." event={() => {navigation.navigate('ChooseRoad');}} imgbg = {require('./assets/Images/farm-pic.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.goBack()}}/>
+		<NextPage text="You decide to sell the farm. You will need all the money you can get." event={() => {navigation.navigate('ChooseRoad');}} imgbg = {require('./assets/Images/farm-pic.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.navigate('ChooseSellFarm')}}/>
 	);
 }
 	
 function ChooseRoad({navigation}){
 	const IncorrectAction = () => {
-		navigation.navigate('GameOverScreen', {message: 'The road you picked would not lead you to California.'});
+		navigation.navigate('GameOverScreen', {message: 'The road you picked would not lead you to California.', backRoute: 'ChooseRoad'});
 	}
 	const CorrectAction = () => {
 		navigation.navigate('RouteSixtySix');
@@ -328,7 +372,7 @@ function ChooseRoad({navigation}){
 			<ImageBackground source = {require('./assets/Images/split-paths.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"You see four possible roads to take. You must choose a road that will take you to California, where conditions are better."}/>
 				<MultipleChoice text1={"Route 44"} text2={"Route 66"} text3={"Route 35"} text4={"Lincoln Highway"} rightAns={2} wrong = {(IncorrectAction)} event = {(CorrectAction)} />
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('SellFarm')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -341,8 +385,8 @@ function RouteSixtySix({navigation}){
 			{/*<ImageBackground source = {require('./assets/Images/Route66mapwithtruck.png')} style = {styles.container}>*/}
 				<FadeInText style={styles.instructions} text={"You decide to take Route 66, which will lead you all the way from Oklahoma to California."}/>
 				<Image source = {mapSrc} style = {styles.map}/>
-				<GenButton text = "Next" whenPressed={() => navigation.navigate('WhereSleep')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton}/>
-				<BackArrow event={() => navigation.goBack()}/>
+				<GenButton text = "Next" whenPressed={() => navigation.navigate('WhereSleep')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton} butStylePressed={buttonStyles.nextButtonPressed}/>
+				<BackArrow event={() => navigation.navigate('ChooseRoad')}/>
 			{/*</ImageBackground>*/}
 		</View>
 	);
@@ -350,7 +394,7 @@ function RouteSixtySix({navigation}){
 
 function WhereSleep({navigation}){
 	const IncorrectAction = () => {
-		navigation.navigate('GameOverScreen', {message: 'You can only aford to sleep in a tent beside the road.'});
+		navigation.navigate('GameOverScreen', {message: 'You can only aford to sleep in a tent beside the road.', backRoute: 'WhereSleep'});
 	}
 	const CorrectAction = () => {
 		navigation.navigate('SleepCorrect');
@@ -360,7 +404,7 @@ function WhereSleep({navigation}){
 			<ImageBackground source = {require('./assets/Images/tent-beside-road.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"Where do you sleep at night on your trip?"}/>
 				<MultipleChoice text1={"Hotel"} text2={"House"} text3={"Tent beside road"} text4={"Mansion"} rightAns={3} wrong = {(IncorrectAction)} event = {(CorrectAction)} />
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('RouteSixtySix')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -368,7 +412,7 @@ function WhereSleep({navigation}){
 }
 function SleepCorrect({navigation}){
 	return(
-		<NextPage text="You decide to sleep in a tent beside the road. You cannot afford anything else." event={() => {navigation.navigate('GasStation');}} imgbg={require('./assets/Images/tent-beside-road.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.goBack()}}/>
+		<NextPage text="You decide to sleep in a tent beside the road. You cannot afford anything else." event={() => {navigation.navigate('GasStation');}} imgbg={require('./assets/Images/tent-beside-road.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.navigate('WhereSleep')}}/>
 	);
 }
 
@@ -377,8 +421,8 @@ function GasStation({navigation}){
 		<View style={styles.container}>
 			<ImageBackground source = {require('./assets/Images/gas-station-background.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"You see that your gas is running out, and decide to pull over at a gas station. About how much does gas cost in the 1930s?"}/>
-				<MultipleChoice text1={'Over $5'} text2={'Between $3 and $4'} text3={'Less than $1'} text4={'Between $4 and $5'} rightAns={3} wrong = {(() => navigation.navigate('GameOverScreen', {message: 'Gas cost less than that.'}))} event = {(() => navigation.navigate('CorrectGas'))}/>
-				<BackArrow event={() => navigation.goBack()}/>
+				<MultipleChoice text1={'Over $5'} text2={'Between $3 and $4'} text3={'Less than $1'} text4={'Between $4 and $5'} rightAns={3} wrong = {(() => navigation.navigate('GameOverScreen', {message: 'Gas cost less than that.', backRoute: 'GasStation'}))} event = {(() => navigation.navigate('CorrectGas'))}/>
+				<BackArrow event={() => navigation.navigate('SleepCorrect')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -387,7 +431,7 @@ function GasStation({navigation}){
 
 function CorrectGas({navigation}){
 	return(
-		<NextPage text="You fill up the gas tank and continue your journey." event={() => {navigation.navigate('NumPeople');}} imgbg={require('./assets/Images/gas-station-background.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.goBack()}}/>
+		<NextPage text="You fill up the gas tank and continue your journey." event={() => {navigation.navigate('NumPeople');}} imgbg={require('./assets/Images/gas-station-background.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.navigate('GasStation')}}/>
 	);
 }
 
@@ -397,10 +441,10 @@ function NumPeople({navigation}){
 			<ImageBackground source = {require('./assets/Images/straight-path-question-mark.jpg')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"Do you see a lot of people on your journey?"}/>
 				<View style={{flexDirection: 'row'}} >
-					<GenButton text = "No" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'During the Dust Bowl, millions of people migrated to the West.'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton}/>
-					<GenButton text = "Yes" whenPressed={() => navigation.navigate('NumPeopleCorrect')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton}/>
+					<GenButton text = "No" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'During the Dust Bowl, millions of people migrated to the West.', backRoute: 'NumPeople'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton} butStylePressed = {buttonStyles.leftButtonPressed}/>
+					<GenButton text = "Yes" whenPressed={() => navigation.navigate('NumPeopleCorrect')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton} butStylePressed={buttonStyles.rightButtonPressed}/>
 				</View>
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('CorrectGas')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -409,7 +453,7 @@ function NumPeople({navigation}){
 
 function NumPeopleCorrect({navigation}){
 	return(
-		<NextPage text="Millions of people migrated Westward to escape the Dust Bowl." event={() => {navigation.navigate('GetFood');}} imgbg = {require('./assets/Images/people-on-road.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.goBack()}}/>
+		<NextPage text="Millions of people migrated Westward to escape the Dust Bowl." event={() => {navigation.navigate('GetFood');}} imgbg = {require('./assets/Images/people-on-road.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.navigate('NumPeople')}}/>
 	);
 }
 
@@ -418,8 +462,8 @@ function GetFood({navigation}){
 		<View style={styles.container}>
 			<ImageBackground source = {require('./assets/Images/car-trunk-less-food.jpg')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"You are almost out of food, and have very little money. How will you get more food?"}/>
-				<MultipleChoice text1={'Buy canned goods'} text2={'Buy steak'} text3={'Find a restaurant'} text4={'Do not eat'} rightAns={1} wrong = {(() => navigation.navigate('GameOverScreen', {message: 'You should get cheap but nutritious food such as canned goods to eat to save money and refuel yourself.'}))} event = {(() => navigation.navigate('GetFoodCorrect'))}/>
-				<BackArrow event={() => navigation.goBack()}/>
+				<MultipleChoice text1={'Buy canned goods'} text2={'Buy steak'} text3={'Find a restaurant'} text4={'Do not eat'} rightAns={1} wrong = {(() => navigation.navigate('GameOverScreen', {message: 'You should get cheap but nutritious food such as canned goods to eat to save money and refuel yourself.', backRoute: 'GetFood'}))} event = {(() => navigation.navigate('GetFoodCorrect'))}/>
+				<BackArrow event={() => navigation.navigate('NumPeopleCorrect')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -434,13 +478,13 @@ function GetFoodCorrect({navigation}){
 		// 		<GenButton text = "Next" whenPressed={() => navigation.navigate('DeathValley')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton}/>
 		// 	</ImageBackground>
 		// </View>
-		<NextPage text="You buy canned goods, which are cheap and filling, to take with you to get the most out of your money." event={() => {navigation.navigate('ContinueOnJourney');}} imgbg = {require('./assets/Images/can-of-beans.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.goBack()}}/>
+		<NextPage text="You buy canned goods, which are cheap and filling, to take with you to get the most out of your money." event={() => {navigation.navigate('ContinueOnJourney');}} imgbg = {require('./assets/Images/can-of-beans.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.navigate('GetFood')}}/>
 	);
 }
 
 function ContinueOnJourney({navigation}){
 	return(
-		<NextPage text="You continue on your journey, filling up gas when you run out and surviving on canned goods for a period of a few days to a week." event={() => {navigation.navigate('DeathValley');}} back={() => {navigation.goBack()}} textStyle={styles.instructionsWithBg} imgbg={require('./assets/Images/straight-path-question-mark.jpg')}/>
+		<NextPage text="You continue on your journey, filling up gas when you run out and surviving on canned goods for a period of a few days to a week." event={() => {navigation.navigate('DeathValley');}} back={() => {navigation.navigate('GetFoodCorrect')}} textStyle={styles.instructionsWithBg} imgbg={require('./assets/Images/straight-path-question-mark.jpg')}/>
 	);
 }
 function DeathValley({navigation}){
@@ -449,10 +493,10 @@ function DeathValley({navigation}){
 			<ImageBackground source = {require('./assets/Images/death-valley-background.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"You have crossed the border of California, but you must cross through Death Valley. Do you go during the day so that it is easier to see and drive or the night so your car doesn't overheat?  "}/>
 				<View style={{flexDirection: 'row'}} >
-					<GenButton text = "Day" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'Your car overheated, leaving you stranded in Death Valley.'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton}/>
-					<GenButton text = "Night" whenPressed={() => navigation.navigate('DeathValleyCorrect')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton}/>
+					<GenButton text = "Day" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'Your car overheated, leaving you stranded in Death Valley.', backRoute: 'DeathValley'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton} butStylePressed={buttonStyles.leftButtonPressed}/>
+					<GenButton text = "Night" whenPressed={() => navigation.navigate('DeathValleyCorrect')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton} butStylePressed = {buttonStyles.rightButtonPressed}/>
 				</View>
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('ContinueOnJourney')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -466,7 +510,7 @@ function DeathValleyCorrect({navigation}){
 		// 		<GenButton text = "Next" whenPressed={() => navigation.navigate('ReachCalifornia')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton}/>
 		// 	</ImageBackground>
 		// </View>
-		<NextPage text="You successfully cross Death Valley in the night." event={() => {navigation.navigate('ReachCalifornia');}} imgbg={require('./assets/Images/death-valley-background.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.goBack()}}/>
+		<NextPage text="You successfully cross Death Valley in the night." event={() => {navigation.navigate('ReachCalifornia');}} imgbg={require('./assets/Images/death-valley-background.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.navigate('DeathValley')}}/>
 	);
 }
 function ReachCalifornia({navigation}){
@@ -477,7 +521,7 @@ function ReachCalifornia({navigation}){
 		// 		<GenButton text = "Next" whenPressed={() => navigation.navigate('ChooseSettlement')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton}/>
 		// 	</ImageBackground>
 		// </View>
-		<NextPage text="You soon reach San Joaquin, California and see many other people who travelled the same road as you. Although you reached your destination, you know life will not be easy." event={() => {navigation.navigate('ChooseIfFindJobHard');}} imgbg = {require('./assets/Images/arrive-in-CA.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.goBack()}}/>
+		<NextPage text="You soon reach San Joaquin, California and see many other people who travelled the same road as you. Although you reached your destination, you know life will not be easy." event={() => {navigation.navigate('ChooseIfFindJobHard');}} imgbg = {require('./assets/Images/arrive-in-CA.png')} textStyle={styles.instructionsWithBg} back={() => {navigation.navigate('DeathValleyCorrect')}}/>
 	);
 }
 function ChooseIfFindJobHard({navigation}){
@@ -486,10 +530,10 @@ function ChooseIfFindJobHard({navigation}){
 			<ImageBackground source = {require('./assets/Images/jobs-background.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"You know you must find a job to survive at San Joaquin. Is it easy to find a job there?"}/>
 				<View style={{flexDirection: 'row'}} >
-					<GenButton text = "Yes" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'It was very hard to find a job as a migrant in California.'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton}/>
-					<GenButton text = "No" whenPressed={() => navigation.navigate('SanJoaquin')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton}/>
+					<GenButton text = "Yes" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'It was very hard to find a job as a migrant in California.', backRoute: 'ChooseIfFindJobHard'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton} butStylePressed={buttonStyles.leftButtonPressed}/>
+					<GenButton text = "No" whenPressed={() => navigation.navigate('SanJoaquin')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton} butStylePressed={buttonStyles.rightButtonPressed}/>
 				</View>
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('ReachCalifornia')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -501,8 +545,8 @@ function SanJoaquin({navigation}){
 		<View style={styles.container}>
 			<ImageBackground source = {require('./assets/Images/jobs-background.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"Finding a job is very hard for migrants. What jobs are available for you?"}/>
-				<MultipleChoice text1={'Teacher'} text2={'Lawyer'} text3={'Politician'} text4={'Farmer'} rightAns={4} wrong = {(() => navigation.navigate('GameOverScreen', {message: 'Farming was the only job available for new migrants.'}))} event = {(() => navigation.navigate('Farmer'))}/>
-				<BackArrow event={() => navigation.goBack()}/>
+				<MultipleChoice text1={'Teacher'} text2={'Lawyer'} text3={'Politician'} text4={'Farmer'} rightAns={4} wrong = {(() => navigation.navigate('GameOverScreen', {message: 'Farming was the only job available for new migrants.', backRoute: 'SanJoaquin'}))} event = {(() => navigation.navigate('Farmer'))}/>
+				<BackArrow event={() => navigation.navigate('ChooseIfFindJobHard')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -511,7 +555,7 @@ function SanJoaquin({navigation}){
 
 function Farmer({navigation}){
 	return(
-		<NextPage text = "Being a farmer is one of the only jobs available for migrants. You find a job as a farmer." back={() => {navigation.goBack()}} event={() => {navigation.navigate('ChooseIfPayGood');}} imgbg = {require('./assets/Images/jobs-background.png')} textStyle={styles.instructionsWithBg}/>
+		<NextPage text = "Being a farmer is one of the only jobs available for migrants. You find a job as a farmer." back={() => {navigation.navigate('SanJoaquin')}} event={() => {navigation.navigate('ChooseIfPayGood');}} imgbg = {require('./assets/Images/jobs-background.png')} textStyle={styles.instructionsWithBg}/>
 	);
 }
 
@@ -521,10 +565,10 @@ function ChooseIfPayGood({navigation}){
 			<ImageBackground source = {require('./assets/Images/jobs-background.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"Is the pay good in your job?"}/>
 				<View style={{flexDirection: 'row'}} >
-					<GenButton text = "Yes" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'Farmers that migrated to California got very little pay.'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton}/>
-					<GenButton text = "No" whenPressed={() => navigation.navigate('PayCorrect')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton}/>
+					<GenButton text = "Yes" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'Farmers that migrated to California got very little pay.', backRoute: 'ChooseIfPayGood'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton} butStylePressed={buttonStyles.leftButtonPressed}/>
+					<GenButton text = "No" whenPressed={() => navigation.navigate('PayCorrect')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton} butStylePressed={buttonStyles.rightButtonPressed}/>
 				</View>
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('Farmer')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -533,7 +577,7 @@ function ChooseIfPayGood({navigation}){
 
 function PayCorrect({navigation}){
 	return(
-		<NextPage text = "You and all other farmers that migrated to San Joaquin got very little pay." back={() => {navigation.goBack()}} event={() => {navigation.navigate('IfResidentsNice')}} imgbg={require('./assets/Images/jobs-background.png')} textStyle={styles.instructionsWithBg}/>
+		<NextPage text = "You and all other farmers that migrated to San Joaquin got very little pay." back={() => {navigation.navigate('ChooseIfPayGood')}} event={() => {navigation.navigate('IfResidentsNice')}} imgbg={require('./assets/Images/jobs-background.png')} textStyle={styles.instructionsWithBg}/>
 	);
 }
 
@@ -543,10 +587,10 @@ function IfResidentsNice({navigation}){
 			<ImageBackground source = {require('./assets/Images/cali-farmer.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"You see many non-migrant residents in San Joaquin. Are the residents of San Joaquin nice to you and the other migrants?"}/>
 				<View style={{flexDirection: 'row'}} >
-					<GenButton text = "Yes" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'Most residents were very mean to migrants, and thought that there was not enough space for them in California. Migrants were labelled "Okies".'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton}/>
-					<GenButton text = "No" whenPressed={() => navigation.navigate('ResidentsNotNice')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton}/>
+					<GenButton text = "Yes" whenPressed={() => navigation.navigate('GameOverScreen', {message: 'Most residents were very mean to migrants, and thought that there was not enough space for them in California. Migrants were labelled "Okies".', backRoute: 'IfResidentsNice'})} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.leftButton} butStylePressed={buttonStyles.leftButtonPressed}/>
+					<GenButton text = "No" whenPressed={() => navigation.navigate('ResidentsNotNice')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.rightButton} butStylePressed={buttonStyles.rightButtonPressed}/>
 				</View>
-				<BackArrow event={() => navigation.goBack()}/>
+				<BackArrow event={() => navigation.navigate('PayCorrect')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -554,7 +598,7 @@ function IfResidentsNice({navigation}){
 }
 function ResidentsNotNice({navigation}){
 	return(
-		<NextPage text = "You and the other migrants were labelled 'Okies'. Most residents were very mean to migrants, and thought that there was not enough space for them in California." back={() => {navigation.goBack()}} event={() => {navigation.navigate('ChooseWhereLive')}} imgbg = {require('./assets/Images/cali-farmer.png')} textStyle = {styles.instructionsWithBg}/>
+		<NextPage text = "You and the other migrants were labelled 'Okies'. Most residents were very mean to migrants, and thought that there was not enough space for them in California." back={() => {navigation.navigate('IfResidentsNice')}} event={() => {navigation.navigate('ChooseWhereLive')}} imgbg = {require('./assets/Images/cali-farmer.png')} textStyle = {styles.instructionsWithBg}/>
 	);
 }
 
@@ -563,8 +607,8 @@ function ChooseWhereLive({navigation}){
 		<View style={styles.container}>
 			<ImageBackground source = {require('./assets/Images/tent-on-ground.png')} style = {styles.container}>
 				<FadeInText style={styles.instructionsWithBg} text={"Where do you and the other migrants live?"}/>
-				<MultipleChoice text1={'Hotels'} text2={'Tents'} text3={'Apartments'} text4={'Houses'} rightAns={2} wrong = {(() => navigation.navigate('GameOverScreen', {message: 'Farmers mainly lived in tents and shantytowns.'}))} event = {(() => navigation.navigate('ChoseTents'))}/>
-				<BackArrow event={() => navigation.goBack()}/>
+				<MultipleChoice text1={'Hotels'} text2={'Tents'} text3={'Apartments'} text4={'Houses'} rightAns={2} wrong = {(() => navigation.navigate('GameOverScreen', {message: 'Farmers mainly lived in tents and shantytowns.', backRoute: 'ChooseWhereLive'}))} event = {(() => navigation.navigate('ChoseTents'))}/>
+				<BackArrow event={() => navigation.navigate('ResidentsNotNice')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -573,19 +617,19 @@ function ChooseWhereLive({navigation}){
 
 function ChoseTents({navigation}){
 	return(
-		<NextPage text = "You and the ohter migrants live in tents and shantytowns." event={() => {navigation.navigate('LifeInCalifornia1')}} back={() => {navigation.goBack()}} imgbg={require('./assets/Images/tent-on-ground.png')} textStyle={styles.instructionsWithBg}/>
+		<NextPage text = "You and the ohter migrants live in tents and shantytowns." event={() => {navigation.navigate('LifeInCalifornia1')}} back={() => {navigation.navigate('ChooseWhereLive')}} imgbg={require('./assets/Images/tent-on-ground.png')} textStyle={styles.instructionsWithBg}/>
 	);
 }
 
 function LifeInCalifornia1({navigation}){
 	return(
-		<NextPage text = "You live a meager life in California working as a farmer and living in tents. The residents are not nice to you and you have few allies." back={() => {navigation.goBack()}} event={() => {navigation.navigate('LifeInCalifornia2')}} textStyle={styles.instructionsWithBg} imgbg={require('./assets/Images/arrive-in-CA.png')}/>
+		<NextPage text = "You live a meager life in California working as a farmer and living in tents. The residents are not nice to you and you have few allies." back={() => {navigation.navigate('ChoseTents')}} event={() => {navigation.navigate('LifeInCalifornia2')}} textStyle={styles.instructionsWithBg} imgbg={require('./assets/Images/arrive-in-CA.png')}/>
 	);
 }
 
 function LifeInCalifornia2({navigation}){
 	return(
-		<NextPage text = "You have survived the Dust Bowl and the Great Depression, but your life and the lives of all of the other Dust Bowl migrants are and will continue to be very hard." back={() => {navigation.goBack()}} event={() => {navigation.navigate('FinishedGame')}} textStyle={styles.instructionsWithBg} imgbg={require('./assets/Images/arrive-in-CA.png')}/>
+		<NextPage text = "You have survived the Dust Bowl and the Great Depression, but your life and the lives of all of the other Dust Bowl migrants are and will continue to be very hard." back={() => {navigation.navigate('LifeInCalifornia1')}} event={() => {navigation.navigate('FinishedGame')}} textStyle={styles.instructionsWithBg} imgbg={require('./assets/Images/arrive-in-CA.png')}/>
 	);
 }
 
@@ -595,8 +639,8 @@ function FinishedGame({navigation}){
 			<ImageBackground source = {require('./assets/Images/dust-storm-vertical.png')} style = {styles.container}>
 				<FadeInText style={styles.smallerTitle} text={"Congratulations!"}/>
 				<FadeInText style={styles.instructions} text={"You survived the Dust Bowl. \n\nThousands of people lost their lives in the dust bowl to 'dust pneumonia', including young children. \nAbout 250,000 farmers fled the plains to look for a better life elsewhere."}/>
-				<GenButton text = "Play Again" whenPressed={() => navigation.navigate('Home')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton}/>
-				<BackArrow event={() => navigation.goBack()}/>
+				<GenButton text = "Play Again" whenPressed={() => navigation.navigate('HomeScreen')} butStyleText={buttonStyles.nextButtonText} butStyle={buttonStyles.nextButton}/>
+				<BackArrow event={() => navigation.navigate('LifeInCalifornia2')}/>
 				<StatusBar style="auto" />
 			</ImageBackground>
 		</View>
@@ -623,7 +667,7 @@ function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions = {{headerShown: false, animationEnabled: false}}>
         <Stack.Screen
-          name="Home"
+          name="HomeScreen"
           component={HomeScreen}
         />
 		<Stack.Screen
@@ -791,6 +835,21 @@ const buttonStyles = StyleSheet.create({
 	  shadowOffset: { width: -3, height: WINDOW_HEIGHT/120 },
 	  shadowOpacity: 1,
   },
+  nextButtonPressed: {
+	paddingVertical: WINDOW_HEIGHT * 0.02,
+	paddingHorizontal: WINDOW_WIDTH * 0.08,
+	marginTop: WINDOW_HEIGHT * 0.05,
+	top: 0,
+	backgroundColor: '#8F8F8F',
+	//opacity: 0.5,
+	flexDirection: "column",
+	justifyContent: "flex-end",
+	borderRadius: 50,
+	elevation: 30,
+	shadowColor: '#404040',
+	shadowOffset: { width: -3, height: WINDOW_HEIGHT/120 },
+	shadowOpacity: 1,
+},
   nextButtonText: {
 	  color: '#fff',
 	  fontSize: 20,
@@ -813,6 +872,19 @@ const buttonStyles = StyleSheet.create({
 	  shadowOffset: { width: -2, height: WINDOW_HEIGHT/120 },
 	  shadowOpacity: 1,
   },
+  startButtonPressed: {
+	paddingVertical: WINDOW_HEIGHT * 0.02,
+	paddingHorizontal: WINDOW_WIDTH * 0.05,
+	borderRadius: 50,
+	marginTop: WINDOW_HEIGHT/10,
+	backgroundColor: '#8EADF9',
+	flexDirection: "column",
+	justifyContent: "flex-end",
+	elevation: 50,
+	shadowColor: '#117fed',
+	shadowOffset: { width: -2, height: WINDOW_HEIGHT/120 },
+	shadowOpacity: 1,
+},
   leftButton: {
 	  padding: WINDOW_WIDTH/70,
 	  borderRadius: 30,
@@ -826,8 +898,21 @@ const buttonStyles = StyleSheet.create({
 	  shadowColor: '#117fed',
 	  shadowOffset: { width: -2, height: WINDOW_HEIGHT/160 },
 	  shadowOpacity: 1,
-	  
   },
+  leftButtonPressed: {
+	padding: WINDOW_WIDTH/70,
+	borderRadius: 30,
+	marginTop: WINDOW_HEIGHT/10,
+	right: WINDOW_WIDTH/10,
+	top: 0,
+	backgroundColor: '#82A7FF',
+	flexDirection: "column",
+	justifyContent: "flex-end",
+	elevation: 30,
+	shadowColor: '#117fed',
+	shadowOffset: { width: -2, height: WINDOW_HEIGHT/160 },
+	shadowOpacity: 1,
+},
   rightButton: {
 	  padding: WINDOW_WIDTH/70,
 	  borderRadius: 30,
@@ -844,6 +929,22 @@ const buttonStyles = StyleSheet.create({
 	  
 	  
   },
+  rightButtonPressed: {
+	padding: WINDOW_WIDTH/70,
+	borderRadius: 30,
+	left: WINDOW_WIDTH/10,
+	marginTop: WINDOW_HEIGHT/10,
+	//bottom: (WINDOW_HEIGHT*1.9)/20,
+	backgroundColor: '#82A7FF',
+	flexDirection: "column",
+	justifyContent: "flex-end",
+	elevation: 30,
+	shadowColor: '#117fed',
+	shadowOffset: { width: -2, height: WINDOW_HEIGHT/160 },
+	shadowOpacity: 1,
+	
+	
+},
   multipleSelectButton: {
 	  padding: WINDOW_HEIGHT/70,
 	  borderRadius: 50,
@@ -856,6 +957,30 @@ const buttonStyles = StyleSheet.create({
 	  shadowOffset: { width: -3, height: WINDOW_HEIGHT/80 },
 	  shadowOpacity: 1,
   },
+  multipleChoiceButtonPressed: {
+	padding: WINDOW_HEIGHT/70,
+	borderRadius: 50,
+	marginTop: WINDOW_HEIGHT/25,
+	backgroundColor: '#505050',
+	//opacity: 0.5,
+	borderWidth: 2,
+	elevation: 10,
+	shadowColor: '#656565',
+	shadowOffset: { width: -3, height: WINDOW_HEIGHT/80 },
+	shadowOpacity: 1,
+},
+  multipleSelectButtonPressed: {
+	padding: WINDOW_HEIGHT/70,
+	borderRadius: 50,
+	marginTop: WINDOW_HEIGHT/25,
+	backgroundColor: '#FFFA94',
+	//opacity: 0.5,
+	borderWidth: 0,
+	elevation: 10,
+	shadowColor: '#FFE977',
+	shadowOffset: { width: -3, height: WINDOW_HEIGHT/80 },
+	shadowOpacity: 1,
+},
   multipleSelectText: {
 	  fontSize: WINDOW_WIDTH/50,
 	  fontWeight: "200",
@@ -873,9 +998,33 @@ const buttonStyles = StyleSheet.create({
 	  shadowOffset: { width: -2, height: WINDOW_HEIGHT/80 },
 	  shadowOpacity: 1,
   },
+  submitButtonPressed: {
+	padding: WINDOW_HEIGHT/40,
+	marginTop: WINDOW_HEIGHT/20,
+	backgroundColor: '#FFF988',
+	//opacity: 0.7,
+	borderRadius: 50,
+	elevation: 30,
+	shadowColor: '#949400',
+	shadowOffset: { width: -2, height: WINDOW_HEIGHT/80 },
+	shadowOpacity: 1,
+},
   backButton: {
 	padding: WINDOW_WIDTH/50,
 	backgroundColor: '#4b54fa',
+	position: 'absolute',
+	bottom: 0,
+	left: 0,
+	borderTopRightRadius:20,
+	elevation: 30,
+	shadowColor: '#020654',
+	shadowRadius: 15,
+	shadowOffset: { width: 0, height: 0 },
+	shadowOpacity: 1,
+  }, 
+  backButtonPressed: {
+	padding: WINDOW_WIDTH/50,
+	backgroundColor: '#C4CFFF',
 	position: 'absolute',
 	bottom: 0,
 	left: 0,
